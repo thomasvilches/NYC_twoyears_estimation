@@ -6,3 +6,9 @@ rc = [1.0;map(y-> 1.0-(0.09/10)*y,1:10);map(y-> 0.91-(0.145/15)*y,1:15);map(y-> 
 run_param_scen_cal(true,0.121,"newyorkcity",15,1,1,1,1,1,1,rc,dc,528,true,425,80) 
 run_param_scen_cal(true,0.121,"newyorkcity",15,1,1,1,1,1,2,rc,dc,528,false,425,80) 
 
+
+# vaccinate up to the end in the current pace March 31st
+run_param_scen_cal(true,0.121,"newyorkcity",15,1,1,1,1,1,0,2,rc,dc,[1033;-1;-3;-4;-5;-7;-9],[0.0;0.0;0.0;0.0;0.0],true,425,70,0)
+
+#vaccinate Octuber, Nov, Dec
+run_param_scen_cal(true,0.121,"newyorkcity",15,1,1,1,1,1,4,2,rc,dc,[852;852;941;1033;-5;-7;-9],[0.6;0.5;0.38;0.54;0.75],true,425,70,0)
