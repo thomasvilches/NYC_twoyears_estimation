@@ -129,8 +129,8 @@ end
     reduction_omicron::Float64 = 0.6 ##not using
     #=------------ Vaccine Efficacy ----------------------------=#
     booster_after::Array{Int64,1} = [180;180;9999]
-    booster_after_bkup::Array{Int64,1} = [[150;150;9999], [60; 60; 9999]]
-    change_booster_eligibility::Int64 = [490; 761]
+    booster_after_bkup::Array{Array{Int64,1},1} = [[150;150;9999], [60; 60; 9999]]
+    change_booster_eligibility::Array{Int64,1} = [490; 761]
     date_march::Int64 = 547
     #=------------ Vaccine Efficacy ----------------------------=#
     days_to_protection::Array{Array{Array{Int64,1},1},1} = [[[14;21],[0;7]],[[14;21],[0;7]],[[14]]]
@@ -181,7 +181,7 @@ end
 
 
     scenario::Int16 = 1
-    time_horizon::Int16 = 941
+    time_horizon::Int16 = 1033
     intervention_prob::Vector{Float16} = [0.8;0.8;0.8;0.8;0.8]
     
     #age_groups_vac::Vector{UnitRange{Int64}} = [5:11,12:17,18:49,50:64,65:100]

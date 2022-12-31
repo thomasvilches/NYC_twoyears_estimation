@@ -216,7 +216,7 @@ function run_param_scen_cal(calibrating::Bool,b::Float64,province::String="newyo
     intervention_prob = $vac_cov,
     new_vaccine_efficacy = $new_vac_ef)
 
-    folder = create_folder(ip,province,calibrating,letters[idxtime])
+    folder = create_folder(ip,province,calibrating)
 
     #println("$v_e $(ip.vaccine_ef)")
     run(ip,nsims,folder)

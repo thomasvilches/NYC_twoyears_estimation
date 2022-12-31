@@ -750,44 +750,13 @@ function vaccination_rate_1(sim::Int64)
                 1	1	1	1	1	0	0	0
                 1	0	0	0	0	0	0	0
         ]
+        v = [v; Int.(round.(mean(v[end-29:end,:],dims=1)))]
     else
         error("no state set")
     end
-    rng = MersenneTwister(279*sim)
-
-    if p.scenario == :statuscuo
-        v = abs.(v)
-    elseif p.scenario == :fast
-        v = abs.(v)
-        v = Int.(round.(p.α.*v))
-    elseif p.scenario == :half
-        v = Int.(round.(abs.(v/2)))
-    else
-        v = [0 0 0 0 0 0 0 0;
-        0 0 0 0 0 0 0 0]
-    end
-
-    rp = Int.(round.(mean(v[end-30:end,:],dims=1)))
-    l2 = p.modeltime-(p.day_inital_vac+size(v,1)-2)
-    if l2 > 0
-        v2 = repeat(rp,l2)
-        v2 = Int.(p.α3.*v2)
-    
-        for i = 1:l2
-            aux = sum(v2[i,:])
-            aux = Int(round(p.α2*aux))
-            aux_v = sample(rng,1:size(v2,2),aux)
-    
-            for j in aux_v
-                v2[i,j] = v2[i,j] + 1
-            end
-        end
-        v = [v;v2]
-    end
-
-    
 
     return v
+    
 end
 
 function vaccination_rate_2(sim::Int64)
@@ -1533,43 +1502,10 @@ function vaccination_rate_2(sim::Int64)
                 1	1	1	0	0	0	0	0
                 0	1	0	0	0	0	0	0        
         ]
+        v = [v; Int.(round.(mean(v[end-29:end,:],dims=1)))]
     else
         error("no state set")
     end
-
-    rng = MersenneTwister(279*sim)
-    if p.scenario == :statuscuo
-        v = abs.(v)
-    elseif p.scenario == :fast
-        v = abs.(v)
-        v = Int.(round.(p.α.*v))
-    elseif p.scenario == :half
-        v = Int.(round.(abs.(v/2)))
-    else
-        v = [0 0 0 0 0 0 0 0;
-        0 0 0 0 0 0 0 0]
-    end
-
-    
-    rp = Int.(round.(mean(v[end-30:end,:],dims=1)))
-    l2 = p.modeltime-(p.day_inital_vac+size(v,1)-2)
-    if l2 > 0
-        v2 = repeat(rp,l2)
-        v2 = Int.(p.α3.*v2)
-    
-        for i = 1:l2
-            aux = sum(v2[i,:])
-            aux = Int(round(p.α2*aux))
-            aux_v = sample(rng,1:size(v2,2),aux)
-    
-            for j in aux_v
-                v2[i,j] = v2[i,j] + 1
-            end
-        end
-        v = [v;v2]
-    end
-
-    
 
     return v
 end
@@ -2705,14 +2641,12 @@ function booster_doses()
                 102
                 35
         ]
+        v = [zeros(Int64, 415); v;Int.(round.(mean(v[end-29:end])))]
+
+    else
+        error("No state/city was found")
     end
 
-    rp = Int.(round.(mean(v[end-30:end])))
-    l2 = p.modeltime-(p.day_inital_vac+length(v)-2)
-    if l2 > 0
-        v2 = repeat([rp],l2)
-        v = [v;v2]
-    end
     return v
 end
 
