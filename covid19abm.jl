@@ -183,7 +183,7 @@ end
     scenario::Int16 = 1
     time_horizon::Int16 = 1033
     intervention_prob::Vector{Float16} = [0.8;0.8;0.8;0.8;0.8]
-    
+    age_groups_vac::Vector{UnitRange{Int64}} = [5:11,12:17,18:49,50:64,65:100]
     #age_groups_vac::Vector{UnitRange{Int64}} = [5:11,12:17,18:49,50:64,65:100]
 
     #one waning rate for each efficacy? For each strain? I can change this structure based on that

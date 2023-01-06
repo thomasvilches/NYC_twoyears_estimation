@@ -9,11 +9,10 @@ run_param_scen_cal(true,0.121,"newyorkcity",15,1,1,1,1,1,2,rc,dc,528,false,425,8
 
 
 # calibrating
-run_param_scen_cal(true,0.121,"newyorkcity",15,1,1,1,1,1,0,2,rc,dc,[852;-1;-3;-4;-5;-7;-9],[0.0;0.0;0.0;0.0;0.0],true,425,80,0)
-
+# run_param_scen_cal(true,0.121,"newyorkcity",15,1,1,1,1,1,0,2,rc,dc,[852;-1;-3;-4;-5;-7;-9],[0.0;0.0;0.0;0.0;0.0],true,425,80,0)
 
 # vaccinate up to the end in the current pace March 31st
 run_param_scen_cal(true,0.121,"newyorkcity",15,1,1,1,1,1,0,2,rc,dc,[1033;-1;-3;-4;-5;-7;-9],[0.0;0.0;0.0;0.0;0.0],true,425,80,0)
 
-#vaccinate Octuber, Nov, Dec
+#vaccinate Jan, Feb, March
 run_param_scen_cal(true,0.121,"newyorkcity",15,1,1,1,1,1,4,2,rc,dc,[852;852;941;1033;-5;-7;-9],[0.6;0.5;0.38;0.54;0.75],true,425,80,0)
