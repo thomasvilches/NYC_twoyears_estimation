@@ -4,7 +4,7 @@ library(stringr)
 library(ggplot2)
 library(lubridate)
 theme_set(theme_bw())
-enddate=as.Date("2022-12-30")#as.Date("2022-01-31")
+enddate=as.Date("2023-01-20")#as.Date("2022-01-31")
 startvacdate = as.Date("2020-12-12")
  basedate = as.Date("2020-09-01")
 
@@ -67,6 +67,6 @@ df = cases %>% inner_join(deaths, by = "date") %>% inner_join(hosp, by = "date")
   filter(date >= basedate)
 
 
-write.csv(df, "nyc_data_dec2022.csv", row.names = F)
+write.csv(df, "nyc_data_jan2023.csv", row.names = F)
 
 
