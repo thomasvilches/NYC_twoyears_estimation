@@ -71,6 +71,7 @@ end
     τmild::Int64 = 0 ## days before they self-isolate for mild cases
     τsevere::Int64 = 0 ## days before they self-isolate for mild cases
     fmild::Float64 = 1.0  ## percent of people practice self-isolation
+    fmild2::Float64 = 1.0  ## percent of people practice self-isolation
     fsevere::Float64 = 1.0 #
     fpreiso::Float64 = 0.0 ## percent that is isolated at the presymptomatic stage
     tpreiso::Int64 = 0## preiso is only turned on at this time. 
@@ -178,6 +179,12 @@ end
     using_jj::Bool = false
     
     hosp_red::Float64 = 3.1
+
+    # Adding some extra code to make sure that isolations works - isocontact
+    iso_contact::Float64 = contact_change_rate
+    save_contact_rate::Float64 = 0.0
+    n_days_iso_contact::Int64 = 15
+    day_iso_contact::Int64 = 760
 
 
     scenario::Int16 = 1
@@ -461,6 +468,14 @@ function main(ip::ModelParameters,sim::Int64)
                 count_change += 1
             end
 
+            if st < p.day_iso_contact
+                setfield!(p, :iso_contact, p.contact_change_rate)
+            elseif st == p.day_iso_contact
+                p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
+
+            elseif p.iso_contact < 1.0
+                setfield!(p, :iso_contact, min(p.iso_contact+p.save_contact_rate, 1.0))
+            end
             
             if st == p.time_vac_kids
                 vac_ind = vac_selection(sim,12,agebraks_vac)
@@ -520,6 +535,7 @@ function main(ip::ModelParameters,sim::Int64)
         end
     end
     
+    setfield!(p, :fmild, p.fmild2)
     # do not vaccinate
     for st = p.modeltime[1]+1:p.modeltime[2]
         #println(st)
@@ -528,6 +544,14 @@ function main(ip::ModelParameters,sim::Int64)
             count_change += 1
         end
 
+        if st < p.day_iso_contact
+            setfield!(p, :iso_contact, p.contact_change_rate)
+        elseif st == p.day_iso_contact
+            p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
+
+        elseif p.iso_contact < 1.0
+            setfield!(p, :iso_contact, min(p.iso_contact+p.save_contact_rate, 1.0))
+        end
         ## change it here!!! this is the important part
         
         #p.scenario > 0 && vac_time_extra!(sim,st,ind1,ind2,indb,r1,r2,rb)
@@ -572,7 +596,14 @@ function main(ip::ModelParameters,sim::Int64)
             count_change += 1
         end
 
-        ## change it here!!! this is the important part
+        if st < p.day_iso_contact
+            setfield!(p, :iso_contact, p.contact_change_rate)
+        elseif st == p.day_iso_contact
+            p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
+
+        elseif p.iso_contact < 1.0
+            setfield!(p, :iso_contact, min(p.iso_contact+p.save_contact_rate, 1.0))
+        end
         
         #p.scenario > 0 && vac_time_extra!(sim,st,ind1,ind2,indb,r1,r2,rb)
         
@@ -616,7 +647,14 @@ function main(ip::ModelParameters,sim::Int64)
             count_change += 1
         end
 
-        ## change it here!!! this is the important part
+        if st < p.day_iso_contact
+            setfield!(p, :iso_contact, p.contact_change_rate)
+        elseif st == p.day_iso_contact
+            p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
+
+        elseif p.iso_contact < 1.0
+            setfield!(p, :iso_contact, min(p.iso_contact+p.save_contact_rate, 1.0))
+        end
         
         if p.scenario > 0
             nvacgiven += vac_time_extra!(sim,st,ind1,ind2,indb,r1,r2,rb)
@@ -636,8 +674,14 @@ function main(ip::ModelParameters,sim::Int64)
             setfield!(p, :contact_change_rate, p.change_rate_values[count_change])
             count_change += 1
         end
+        if st < p.day_iso_contact
+            setfield!(p, :iso_contact, p.contact_change_rate)
+        elseif st == p.day_iso_contact
+            p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
 
-        ## change it here!!! this is the important part
+        elseif p.iso_contact < 1.0
+            setfield!(p, :iso_contact, min(p.iso_contact+p.save_contact_rate, 1.0))
+        end
         
         #p.scenario > 0 && vac_time_extra!(sim,st,ind1,ind2,indb,r1,r2,rb)
        
@@ -2649,7 +2693,7 @@ export _get_betavalue
         aux = x.relaxed ? 1.0*(p.contact_change_rate^p.turnon) : p.contact_change_rate*p.contact_change_2
         cnt = rand(negative_binomials(ag,aux)) ##using the contact average for shelter-in
     else 
-        cnt = rand(negative_binomials_shelter(ag,p.contact_change_2))  # expensive operation, try to optimize
+        cnt = rand(negative_binomials_shelter(ag,p.contact_change_2*(p.contact_change_rate/p.iso_contact))) # expensive operation, try to optimize
     end
     
     if x.health_status == DED
@@ -2677,12 +2721,22 @@ function dyntrans(sys_time, grps,sim)
             for (i, g) in enumerate(gpw) 
                 meet = rand(grps[i], g)   # sample the people from each group
                 # go through each person
+                meet = filter(jjj -> humans[jjj].health_status ∉ (MILD, MISO)||
+                (humans[jjj].health_status == MILD && humans[jjj].tis == 0) ||
+                (humans[jjj].health_status ∈ (MILD, MISO) && humans[jjj].iso), meet)
+                
                 for j in meet 
                     y = humans[j]
                     ycnt = y.nextday_meetcnt    
                     ycnt == 0 && continue
 
-                    y.nextday_meetcnt = y.nextday_meetcnt - 1 # remove a contact
+                    if x.health_status ∉ (MILD, MISO)
+                        y.nextday_meetcnt = y.nextday_meetcnt - 1 # remove a contact
+                    elseif x.iso
+                        y.nextday_meetcnt = y.nextday_meetcnt - 1 # remove a contact
+                    elseif x.tis == 0
+                        y.nextday_meetcnt = y.nextday_meetcnt - 1 # remove a contact
+                    end
                     totalmet += 1
                     
                     beta = _get_betavalue(sys_time, xhealth)
