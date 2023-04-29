@@ -56,6 +56,7 @@ Base.@kwdef mutable struct Human
     tested::Bool = false
     max_boost::Int8 = 0
     
+    group_mult = 4
 end
 
 ## default system parameters
@@ -186,6 +187,9 @@ end
     n_days_iso_contact::Int64 = 15
     day_iso_contact::Int64 = 760
 
+    #? creating a multiplier to represent a new strain
+    multiplier::Vector{Float32} = [0.62;0.49;0.51;1.0]
+    start_mult::Int8 = 0 #! care here!!! - I am using the st == p.days_contact because it matches with octuber 01
 
     scenario::Int16 = 1
     time_horizon::Int16 = 1033
@@ -451,6 +455,16 @@ function main(ip::ModelParameters,sim::Int64)
     idx_change::Int8 = 1
     # start the time loop
 
+    #? I am implement this here to be more explicity
+    age_g_mult = [5:50, 50:64, 64:100]
+    for x in humans
+        gg = findfirst(y -> x.age ∈ y, age_g_mult)
+        if gg !== nothing
+            x.group_mult = gg
+        end
+    end
+
+
     initinfvector::Vector{Int64} = [p.initialinf;p.initialinf2;p.initialinf3;p.initialinf4;p.initialinf5;p.initialinf6]
     ## vaccinate up to modeltime[1] with normal rates
     for ii in 1:(length(vv)-1)
@@ -470,7 +484,8 @@ function main(ip::ModelParameters,sim::Int64)
 
             if st < p.day_iso_contact
                 setfield!(p, :iso_contact, p.contact_change_rate)
-            elseif st == p.day_iso_contact
+            elseif st == p.day_iso_contact #! Here I will use this place to create the function to adjust all the efficacies
+                setfield!(p, :start_mult, 1)
                 p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
 
             elseif p.iso_contact < 1.0
@@ -547,6 +562,7 @@ function main(ip::ModelParameters,sim::Int64)
         if st < p.day_iso_contact
             setfield!(p, :iso_contact, p.contact_change_rate)
         elseif st == p.day_iso_contact
+            setfield!(p, :start_mult, 1)
             p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
 
         elseif p.iso_contact < 1.0
@@ -599,6 +615,7 @@ function main(ip::ModelParameters,sim::Int64)
         if st < p.day_iso_contact
             setfield!(p, :iso_contact, p.contact_change_rate)
         elseif st == p.day_iso_contact
+            setfield!(p, :start_mult, 1)
             p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
 
         elseif p.iso_contact < 1.0
@@ -650,6 +667,7 @@ function main(ip::ModelParameters,sim::Int64)
         if st < p.day_iso_contact
             setfield!(p, :iso_contact, p.contact_change_rate)
         elseif st == p.day_iso_contact
+            setfield!(p, :start_mult, 1)
             p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
 
         elseif p.iso_contact < 1.0
@@ -677,6 +695,7 @@ function main(ip::ModelParameters,sim::Int64)
         if st < p.day_iso_contact
             setfield!(p, :iso_contact, p.contact_change_rate)
         elseif st == p.day_iso_contact
+            setfield!(p, :start_mult, 1)
             p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
 
         elseif p.iso_contact < 1.0
@@ -804,6 +823,11 @@ function calc_rates(sim,time_horizon)
 
     return ind1,ind2,indb,r1,r2,rb
 end
+
+#! creating a function to adjust the efficacies after Octuber - representing the new strain
+#= function adjust_efficacies()
+
+end =#
 
 function get_sample(idx,sim,xv,ag)
     rng = MersenneTwister(192*sim*idx*ag)
@@ -2721,6 +2745,7 @@ function dyntrans(sys_time, grps,sim)
             for (i, g) in enumerate(gpw) 
                 meet = rand(grps[i], g)   # sample the people from each group
                 # go through each person
+                #? We want to make sure that mild individuals that are not isolated can have more contacts.
                 meet = filter(jjj -> humans[jjj].health_status ∉ (MILD, MISO)||
                 (humans[jjj].health_status == MILD && humans[jjj].tis == 0) ||
                 (humans[jjj].health_status ∈ (MILD, MISO) && humans[jjj].iso), meet)
