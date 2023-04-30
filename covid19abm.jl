@@ -2159,7 +2159,7 @@ function move_to_latent(x::Human)
 
             if x.vac_status*x.protected > 0
 
-                aux = x.vac_eff_symp[x.strain][end][end]*x.waning[2]
+                aux = x.vac_eff_symp[x.strain][end][end]*x.waning[2]*(p.multiplier[x.group_mult]^p.start_mult)
                 
             else
                 if index > 0
@@ -2177,7 +2177,7 @@ function move_to_latent(x::Human)
             error("move to latent recvac")
         end
     else
-        aux = x.vac_status*x.protected > 0 ? x.vac_eff_symp[x.strain][x.vac_status][x.protected]*x.waning[2] : 0.0
+        aux = x.vac_status*x.protected > 0 ? x.vac_eff_symp[x.strain][x.vac_status][x.protected]*x.waning[2]*(p.multiplier[x.group_mult]^p.start_mult) : 0.0
     end
     auxiliar = (1-aux)
  
@@ -2768,7 +2768,7 @@ function dyntrans(sys_time, grps,sim)
                     adj_beta = 0 # adjusted beta value by strain and vaccine efficacy
                     if y.health == SUS && y.swap == UNDEF
                         if y.vac_status*y.protected > 0
-                            aux = y.vac_eff_inf[x.strain][y.vac_status][y.protected]*y.waning[1]
+                            aux = y.vac_eff_inf[x.strain][y.vac_status][y.protected]*y.waning[1]*(p.multiplier[x.group_mult]^p.start_mult)
                         else
                             aux = 0.0
                         end
@@ -2801,7 +2801,7 @@ function dyntrans(sys_time, grps,sim)
                         elseif y.recvac == 2
 
                             if y.vac_status*y.protected > 0
-                                aux_vac = y.vac_eff_inf[x.strain][end][end]*y.waning[1]
+                                aux_vac = y.vac_eff_inf[x.strain][end][end]*y.waning[1]*(p.multiplier[x.group_mult]^p.start_mult)
                                 aux = aux_vac*(1-aux_red)
                             else
                                 
