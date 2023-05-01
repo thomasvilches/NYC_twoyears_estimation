@@ -185,7 +185,7 @@ end
 function create_folder(ip::cv.ModelParameters,province="newyorkcity",calibrating = true)
     
     #RF = string("heatmap/results_prob_","$(replace(string(ip.β), "." => "_"))","_vac_","$(replace(string(ip.vaccine_ef), "." => "_"))","_herd_immu_","$(ip.herd)","_$strategy","cov_$(replace(string(ip.cov_val)))") ## 
-    main_folder = "/data/thomas-covid/NYC_booster"
+    main_folder = "/data/thomas-covid/NYC_booster_revision"
     #main_folder = "."
     if calibrating
         RF = string(main_folder,"/fmild_$(ip.fmild2)/results_prob_","$(replace(string(ip.β), "." => "_"))","_$(ip.file_index)_$(province)") ##  
@@ -200,10 +200,13 @@ end
 
 
 
-function run_param_scen_cal(calibrating::Bool,b::Float64,province::String="newyorkcity",ic1::Int64=1,ic2::Int64=1,ic3::Int64=1,ic4::Int64=1,ic5::Int64=1,ic6::Int64=1,index::Int64 = 0,idxtime::Int64 = 1,rc=[0.0],dc=[0],mt::Vector{Int64}=[973;-1;-3;-5;-7;-8],vac_cov::Vector{Float64}=[0.8;0.8;0.8;0.8;0.8],
+function run_param_scen_cal(calibrating::Bool,b::Float64,province::String="newyorkcity",ic1::Int64=1,
+    ic2::Int64=1,ic3::Int64=1,ic4::Int64=1,ic5::Int64=1,ic6::Int64=1,index::Int64 = 0,
+    idxtime::Int64 = 1,rc=[0.0],dc=[0],mt::Vector{Int64}=[973;-1;-3;-5;-7;-8],
+    vac_cov::Vector{Float64}=[0.8;0.8;0.8;0.8;0.8],
     fmildp::Float64 = 1.0,
     n_days_iso_contact_n::Int64 = 15, day_iso_contact_n::Int64 = 760,
-    vac::Bool=true,tbn::Int64 = 9999,ro::Int64 = 1,dr::Int64=0,
+    vac::Bool=true,tbn::Int64 = 425,ro::Int64 = 80,dr::Int64=0,
     new_vac_ef::Vector{Vector{Float64}} = [[0.81; 0.875; 0.94], [0.82;0.89;0.935]],
     hospar::Float64 = 3.1,nsims::Int64=500)
     

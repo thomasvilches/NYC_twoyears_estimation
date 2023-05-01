@@ -485,7 +485,7 @@ function main(ip::ModelParameters,sim::Int64)
             if st < p.day_iso_contact
                 setfield!(p, :iso_contact, p.contact_change_rate)
             elseif st == p.day_iso_contact #! Here I will use this place to create the function to adjust all the efficacies
-                setfield!(p, :start_mult, 1)
+                setfield!(p, :start_mult, Int8(1))
                 p.save_contact_rate = (1.0-p.iso_contact)/p.n_days_iso_contact
 
             elseif p.iso_contact < 1.0
@@ -2768,7 +2768,7 @@ function dyntrans(sys_time, grps,sim)
                     adj_beta = 0 # adjusted beta value by strain and vaccine efficacy
                     if y.health == SUS && y.swap == UNDEF
                         if y.vac_status*y.protected > 0
-                            aux = y.vac_eff_inf[x.strain][y.vac_status][y.protected]*y.waning[1]*(p.multiplier[x.group_mult]^p.start_mult)
+                            aux = y.vac_eff_inf[x.strain][y.vac_status][y.protected]*y.waning[1]*(p.multiplier[y.group_mult]^p.start_mult)
                         else
                             aux = 0.0
                         end
@@ -2801,7 +2801,7 @@ function dyntrans(sys_time, grps,sim)
                         elseif y.recvac == 2
 
                             if y.vac_status*y.protected > 0
-                                aux_vac = y.vac_eff_inf[x.strain][end][end]*y.waning[1]*(p.multiplier[x.group_mult]^p.start_mult)
+                                aux_vac = y.vac_eff_inf[x.strain][end][end]*y.waning[1]*(p.multiplier[y.group_mult]^p.start_mult)
                                 aux = aux_vac*(1-aux_red)
                             else
                                 
