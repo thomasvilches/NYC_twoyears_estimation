@@ -186,6 +186,7 @@ end
     save_contact_rate::Float64 = 0.0
     n_days_iso_contact::Int64 = 15
     day_iso_contact::Int64 = 760
+    day_change_iso::Int64 = 760
 
     #? creating a multiplier to represent a new strain
     multiplier::Vector{Float32} = [0.62;0.49;0.51;1.0]
@@ -497,6 +498,10 @@ function main(ip::ModelParameters,sim::Int64)
             elseif st == p.time_vac_kids2
                 vac_ind = vac_selection(sim,5,agebraks_vac)
             
+            end
+            
+            if st == p.day_change_iso
+                setfield!(p, :fmild, p.fmild2)
             end
          
             if idx_change <= length(p.change_booster_eligibility) && st == p.change_booster_eligibility[idx_change]
