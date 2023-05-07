@@ -191,6 +191,7 @@ end
     #? creating a multiplier to represent a new strain
     multiplier::Vector{Float32} = [0.62;0.49;0.51;1.0]
     start_mult::Int8 = 0 #! care here!!! - I am using the st == p.days_contact because it matches with octuber 01
+    day_change_vac::Int64 = 760
 
     scenario::Int16 = 1
     time_horizon::Int16 = 1033
@@ -491,6 +492,10 @@ function main(ip::ModelParameters,sim::Int64)
 
             elseif p.iso_contact < 1.0
                 setfield!(p, :iso_contact, min(p.iso_contact+p.save_contact_rate, 1.0))
+            end
+
+            if st == p.day_change_vac
+                setfield!(p, :start_mult, Int8(1))
             end
             
             if st == p.time_vac_kids

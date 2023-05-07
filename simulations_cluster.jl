@@ -205,7 +205,7 @@ function run_param_scen_cal(calibrating::Bool,b::Float64,province::String="newyo
     idxtime::Int64 = 1,rc=[0.0],dc=[0],mt::Vector{Int64}=[973;-1;-3;-5;-7;-8],
     vac_cov::Vector{Float64}=[0.8;0.8;0.8;0.8;0.8],
     fmildp::Float64 = 1.0,
-    n_days_iso_contact_n::Int64 = 15, day_iso_contact_n::Int64 = 760,
+    n_days_iso_contact_n::Int64 = 15, dcv::Int64 = 760, day_iso_contact_n::Int64 = 760,
     vac::Bool=true,tbn::Int64 = 425,ro::Int64 = 80,dr::Int64=0,
     new_vac_ef::Vector{Vector{Float64}} = [[0.81; 0.875; 0.94], [0.82;0.89;0.935]],
     hospar::Float64 = 3.1,nsims::Int64=500)
@@ -218,7 +218,7 @@ function run_param_scen_cal(calibrating::Bool,b::Float64,province::String="newyo
     initialinf2=$ic2,initialinf5=$ic5,initialinf4=$ic4,
     status_relax = 2, relax_after = 14,file_index = $index,
     modeltime=$mt, prov = Symbol($province),
-    time_change_contact = $dc,
+    time_change_contact = $dc, day_change_vac = $dcv,
     change_rate_values = $rc,time_back_to_normal = $tbn,relax_over = $ro, reduce_days = $dr,
     hosp_red = $hospar,
     fmild2 = $fmildp,

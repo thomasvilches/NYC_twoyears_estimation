@@ -77,7 +77,7 @@ idx_2 = 2
 
 # Let's create a function to read the incidence file
 
-  read_file_incidence <- function(index,type,strain = c(1,2,3,4,5,6),st2 = "newyorkcity",beta = "121",ag="all"){
+read_file_incidence <- function(index,type,strain = c(1,2,3,4,5,6),st2 = "newyorkcity",beta = "121",ag="all"){
     
     data.cases1 = read.table(paste0("data/results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"_inc_",ag,".dat"),',',h = T) 
     data.cases1 = data.cases1[,-1]
@@ -100,16 +100,16 @@ idx_2 = 2
     l = list(data.cases1,data.cases2,data.cases3,data.cases4,data.cases5,data.cases6)
     
     return(l[strain])
-  }
+}
 
 # And a function to bootstrap 
   
-  fc <- function(d, i){
-    return(mean(d[i],na.rm=T))
-  }
+fc <- function(d, i){
+  return(mean(d[i],na.rm=T))
+}
 
   # discount formula for YLL
-  formula = function(x) min((cost_lifelost/r) - (1/((1+r)^x))*(cost_lifelost/r),max_cost_life)
+formula = function(x) min((cost_lifelost/r) - (1/((1+r)^x))*(cost_lifelost/r),max_cost_life)
   #formula = function(x) (cost_lifelost/r) - (1/((1+r)^x))*(cost_lifelost/r)
   
 # Vaccination costs (direct) ----------------------------------------------
@@ -145,7 +145,7 @@ n_vacs_second = sum(data$fully[data$AGE_GROUP %in% working_group])
 data_booster = read.csv("data/Demo_additional_dose_age_2022-02-08_1500.csv",sep = ";")
 head(data_booster)
 tail(data_booster)
-data_booster = data_booster %>% rename(DATE = ï..DATE)
+data_booster = data_booster %>% rename(DATE = ï¿½..DATE)
 
 data_booster$DATE = as.Date(data_booster$DATE)
 
