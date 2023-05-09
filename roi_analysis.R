@@ -5,13 +5,7 @@ library(readxl)
 library(tidyverse)     ## data wrangling + ggplot2
 library(colorspace)    ## adjust colors
 library(rcartocolor)   ## Carto palettes
-library(ggforce)       ## sina plots
-library(ggdist)        ## halfeye plots
-library(ggridges)      ## ridgeline plots
-library(ggbeeswarm)    ## beeswarm plots
-library(gghalves)      ## off-set jitter
-library(systemfonts)   ## custom fonts
-library(latex2exp)
+
 # Parameters -------------------------------------------------------------------
 set.seed(1432)
 #Total cost of vaccine clinic setup 
@@ -71,47 +65,47 @@ enddate = as.Date("2022-01-31")
 population = 8336817
 
 
-idx_1 = 1
-idx_2 = 2
+idx_1 = 0
+idx_2 = 4
 #  Reading file function -----------------------------------------------------------------
 
 # Let's create a function to read the incidence file
 
-read_file_incidence <- function(index,type,strain = c(1,2,3,4,5,6),st2 = "newyorkcity",beta = "121",ag="all"){
-    
-    data.cases1 = read.table(paste0("data/results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"_inc_",ag,".dat"),',',h = T) 
-    data.cases1 = data.cases1[,-1]
-    
-    data.cases2 = read.table(paste0("data/results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"2_inc_",ag,".dat"),',',h = T) 
-    data.cases2 = data.cases2[,-1]
-    
-    data.cases3 = read.table(paste0("data/results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"3_inc_",ag,".dat"),',',h = T) 
-    data.cases3 = data.cases3[,-1]
-    
-    data.cases4 = read.table(paste0("data/results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"4_inc_",ag,".dat"),',',h = T) 
-    data.cases4 = data.cases4[,-1]
-    
-    data.cases5 = read.table(paste0("data/results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"5_inc_",ag,".dat"),',',h = T) 
-    data.cases5 = data.cases5[,-1]
-    
-    data.cases6 = read.table(paste0("data/results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"6_inc_",ag,".dat"),',',h = T) 
-    data.cases6 = data.cases6[,-1]
-    
-    l = list(data.cases1,data.cases2,data.cases3,data.cases4,data.cases5,data.cases6)
-    
-    return(l[strain])
+read_file_incidence <- function(index,type, folder = "./",strain = c(1,2,3,4,5,6),st2 = "newyorkcity",beta = "121",ag="all"){
+  
+  data.cases1 = read.table(paste0(folder, "results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"_inc_",ag,".dat"),',',h = T) 
+  data.cases1 = data.cases1[,-1]
+  
+  data.cases2 = read.table(paste0(folder, "results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"2_inc_",ag,".dat"),',',h = T) 
+  data.cases2 = data.cases2[,-1]
+  
+  data.cases3 = read.table(paste0(folder, "results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"3_inc_",ag,".dat"),',',h = T) 
+  data.cases3 = data.cases3[,-1]
+  
+  data.cases4 = read.table(paste0(folder, "results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"4_inc_",ag,".dat"),',',h = T) 
+  data.cases4 = data.cases4[,-1]
+  
+  data.cases5 = read.table(paste0(folder, "results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"5_inc_",ag,".dat"),',',h = T) 
+  data.cases5 = data.cases5[,-1]
+  
+  data.cases6 = read.table(paste0(folder, "results_prob_0_",beta,"_",index,"_",st2,"/simlevel_",type,"6_inc_",ag,".dat"),',',h = T) 
+  data.cases6 = data.cases6[,-1]
+  
+  l = list(data.cases1,data.cases2,data.cases3,data.cases4,data.cases5,data.cases6)
+  
+  return(l[strain])
 }
 
 # And a function to bootstrap 
-  
+
 fc <- function(d, i){
   return(mean(d[i],na.rm=T))
 }
 
-  # discount formula for YLL
+# discount formula for YLL
 formula = function(x) min((cost_lifelost/r) - (1/((1+r)^x))*(cost_lifelost/r),max_cost_life)
-  #formula = function(x) (cost_lifelost/r) - (1/((1+r)^x))*(cost_lifelost/r)
-  
+#formula = function(x) (cost_lifelost/r) - (1/((1+r)^x))*(cost_lifelost/r)
+
 # Vaccination costs (direct) ----------------------------------------------
 
 # This is using the data about expenses provided by NYC
@@ -216,11 +210,13 @@ data.cases = data.cases %>% mutate(date_of_interest=as.Date(date_of_interest,"%m
          inc_deaths=DEATH_COUNT+PROBABLE_DEATH_COUNT,
          inc_hosp = HOSPITALIZED_COUNT) %>% select(date_of_interest,inc_cases,inc_deaths,inc_hosp)
 head(data.cases)
-
+tail(data.cases)
 
 
 # Illness and Hospitalization (direct) ---------------------------------------------------------
 
+
+ffolder = "fmild_1.0/"
 # we want to see the hospitalization scaling factor
 
 #total hospitalization per 100,000 population from the beginning of vaccination
@@ -229,25 +225,26 @@ total_hosp
 
 #Let's see this number in the simulation
 
-hos_sim = read_file_incidence(idx_1,"hos")
-icu_sim = read_file_incidence(idx_1,"icu")
+hos_sim = read_file_incidence(idx_1,"hos", folder = ffolder)
+icu_sim = read_file_incidence(idx_1,"icu", folder = ffolder)
 
 hos = Reduce('+', hos_sim) # adding the strains
 icu = Reduce('+', icu_sim)# adding the strains
 nn = nrow(hos)
-  
+
 v_date = basedate+seq(0,nn-1) #creating a vector with the dates of simulation
 
 
 sum.sim.hos = sum(hos[v_date >= basedate_vac & v_date <= enddate,])/ncol(hos)
 sum.sim.icu = sum(icu[v_date >= basedate_vac & v_date <= enddate,])/ncol(icu)
 
-factor_hos = total_hosp/(sum.sim.hos+sum.sim.icu)
-factor_hos
+# factor_hos = total_hosp/(sum.sim.hos+sum.sim.icu)
+# factor_hos
+factor_hos = 1.1888
 
-asymp = Reduce('+',read_file_incidence(idx_1,"asymp")) # adding the strains
-inf = Reduce('+',read_file_incidence(idx_1,"inf")) # adding the strains
-mild = Reduce('+',read_file_incidence(idx_1,"mild")) # adding the strains
+asymp = Reduce('+',read_file_incidence(idx_1,"asymp", ffolder)) # adding the strains
+inf = Reduce('+',read_file_incidence(idx_1,"inf", ffolder)) # adding the strains
+mild = Reduce('+',read_file_incidence(idx_1,"mild", ffolder)) # adding the strains
 
 # Let's set inf to be severe non-hospitalized
 inf_nh = inf - hos - icu
@@ -301,8 +298,8 @@ cost_hospital = (cost_symp+cost_inf+cost_hos+cost_icu)*population/100000
 # For the SCENARIO without vaccination
 ###
 
-hos_sim = read_file_incidence(idx_2,"hos")
-icu_sim = read_file_incidence(idx_2,"icu")
+hos_sim = read_file_incidence(idx_2,"hos", ffolder)
+icu_sim = read_file_incidence(idx_2,"icu", ffolder)
 
 hos = Reduce('+', hos_sim) # adding the strains
 icu = Reduce('+', icu_sim)# adding the strains
@@ -314,9 +311,9 @@ sum.sim.hos2 = sum(hos[v_date >= basedate_vac & v_date <= enddate,])/ncol(hos)
 sum.sim.icu2 = sum(icu[v_date >= basedate_vac & v_date <= enddate,])/ncol(icu)
 
 
-asymp = Reduce('+',read_file_incidence(idx_2,"asymp")) # adding the strains
-inf = Reduce('+',read_file_incidence(idx_2,"inf")) # adding the strains
-mild = Reduce('+',read_file_incidence(idx_2,"mild")) # adding the strains
+asymp = Reduce('+',read_file_incidence(idx_2,"asymp", ffolder)) # adding the strains
+inf = Reduce('+',read_file_incidence(idx_2,"inf", ffolder)) # adding the strains
+mild = Reduce('+',read_file_incidence(idx_2,"mild", ffolder)) # adding the strains
 
 # Let's set inf to be severe non-hospitalized
 inf_nh = inf - hos - icu
@@ -356,7 +353,7 @@ sum.sim.icu2 = sum.sim.icu2*factor_hos
 
 #cost mild infection of hospital
 cost_symp = (sum.sim.mild2)*
-     n_outpatient_visits*(cost_outpatient_appointment+cost_transp_outpatients)
+  n_outpatient_visits*(cost_outpatient_appointment+cost_transp_outpatients)
 #cost severe non-hospitalized infection
 cost_inf = (sum.sim.inf2)*cost_ED_care
 #cost for hospitalizations
@@ -365,6 +362,39 @@ cost_icu = (sum.sim.icu2)*(cost_hosp_ICU+n_EMS_calls*cost_transp_EMS)
 
 cost_hospital2 = (cost_symp+cost_inf+cost_hos+cost_icu)*population/100000
 #cost_hospital2
+
+
+#-----
+
+cost_outpatient <- (sum.sim.mild-sum.sim.mild2)*population/100000*cost_outpatient_appointment
+cost_inf = (sum.sim.inf-sum.sim.inf2)*cost_ED_care*population/100000
+cost_ems = (sum.sim.hos-sum.sim.hos2)*(n_EMS_calls*cost_transp_EMS)+(sum.sim.icu-sum.sim.icu2)*(n_EMS_calls*cost_transp_EMS)*population/100000
+cost_inp = (sum.sim.hos-sum.sim.hos2)*(cost_hosp_nICU)+(sum.sim.icu-sum.sim.icu2)*(cost_hosp_ICU)*population/100000
+
+cb_out <- boot::boot(as.vector(cost_outpatient),fc, 500)
+boot::boot.ci(cb_out, 0.95, "all")
+mean(cb_out$t)
+
+
+cb_inf <- boot::boot(as.vector(cost_inf),fc, 500)
+boot::boot.ci(cb_inf, 0.95, "all")
+mean(cb_inf$t)
+
+cb_ems <- boot::boot(as.vector(cost_ems),fc, 500)
+boot::boot.ci(cb_ems, 0.95, "all")
+mean(cb_ems$t)
+
+
+cb_inp <- boot::boot(as.vector(cost_inp),fc, 500)
+boot::boot.ci(cb_inp, 0.95, "all")
+mean(cb_inp$t)
+
+
+total <- cost_outpatient+cost_inf+cost_ems+cost_inp
+
+cb_total <- boot::boot(as.vector(total),fc, 500)
+boot::boot.ci(cb_total, 0.95, "all")
+mean(cb_total$t)
 
 # Illness and Hospitalization (indirect) ---------------------------------------------------------
 # 
