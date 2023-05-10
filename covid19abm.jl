@@ -234,7 +234,7 @@ export ModelParameters, HEALTH, Human, humans, BETAS
 
 function runsim(simnum, ip::ModelParameters)
     # function runs the `main` function, and collects the data as dataframes. 
-    hmatrix, remaining_doses, total_given, nvacgiven, lat,hos, icu, ded,lat2, hos2, icu2, ded2,lat3, hos3, icu3, ded3, lat4, hos4, icu4, ded4, lat5, hos5, icu5, ded5, lat6, hos6, icu6, ded6, lat7, hos7, icu7, ded7, lat8, hos8, icu8, ded8  = main(ip,simnum)            
+    hmatrix, remaining_doses, total_given, nvacgiven, lat,hos, icu, ded,lat2, hos2, icu2, ded2,lat3, hos3, icu3, ded3, lat4, hos4, icu4, ded4, lat5, hos5, icu5, ded5, lat6, hos6, icu6, ded6, lat7, hos7, icu7, ded7, lat8, hos8, icu8, ded8, rb  = main(ip,simnum)            
 
     # use here to create the vector of comorbidity
     # get simulation age groups
@@ -353,7 +353,7 @@ function runsim(simnum, ip::ModelParameters)
     n_pfizer_2 = n_pfizer_2, n_moderna_2 = n_moderna_2, n_jensen_2 = n_jensen_2, n_pfizer_w_2 = n_pfizer_w_2, n_moderna_w_2 = n_moderna_w_2, n_jensen_w_2 = n_jensen_w_2, 
     n_pfizer_3 = n_pfizer_3, n_moderna_3 = n_moderna_3, n_jensen_3 = n_jensen_3, n_pfizer_w_3 = n_pfizer_w_3, n_moderna_w_3 = n_moderna_w_3, n_jensen_w_3 = n_jensen_w_3, 
     n_pfizer_4 = n_pfizer_4, n_moderna_4 = n_moderna_4, n_jensen_4 = n_jensen_4, n_pfizer_w_4 = n_pfizer_w_4, n_moderna_w_4 = n_moderna_w_4, n_jensen_w_4 = n_jensen_w_4, 
-    remaining = remaining_doses, total_given = total_given, nvacgiven = nvacgiven, n5plus = n5plus, vage = vage)
+    remaining = remaining_doses, total_given = total_given, nvacgiven = nvacgiven, n5plus = n5plus, vage = vage, rb = rb)
 end
 export runsim
 
@@ -593,6 +593,7 @@ function main(ip::ModelParameters,sim::Int64)
 
     dayss = p.modeltime[3]-p.modeltime[2]
     ind1,ind2,indb,r1,r2,rb = calc_rates(sim,dayss)
+    rb_save::Int64 = rb
     # First Pulse
     for st = p.modeltime[2]+1:p.modeltime[3]
         #println(st)
@@ -723,7 +724,7 @@ function main(ip::ModelParameters,sim::Int64)
         # end of day
     end
 
-    return hmatrix, remaining_doses, total_given, nvacgiven, lat,hos, icu, ded,lat2, hos2, icu2, ded2,lat3, hos3, icu3, ded3, lat4, hos4, icu4, ded4, lat5, hos5, icu5, ded5, lat6, hos6, icu6, ded6, lat7, hos7, icu7, ded7, lat8, hos8, icu8, ded8 ## return the model state as well as the age groups. 
+    return hmatrix, remaining_doses, total_given, nvacgiven, lat,hos, icu, ded,lat2, hos2, icu2, ded2,lat3, hos3, icu3, ded3, lat4, hos4, icu4, ded4, lat5, hos5, icu5, ded5, lat6, hos6, icu6, ded6, lat7, hos7, icu7, ded7, lat8, hos8, icu8, ded8, rb_save ## return the model state as well as the age groups. 
 end
 export main
 

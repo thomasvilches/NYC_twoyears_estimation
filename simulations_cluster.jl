@@ -177,6 +177,7 @@ function run(myp::cv.ModelParameters, nsims=1000, folderprefix="./")
     writedlm(string(folderprefix,"/ded_vac_2_r.dat"),hcat([cdr[i].ded7 for i=1:nsims]...))
     writedlm(string(folderprefix,"/ded_vac_3_r.dat"),hcat([cdr[i].ded8 for i=1:nsims]...))
     writedlm(string(folderprefix,"/age_groups.dat"),hcat([cdr[i].vage for i=1:nsims]...))
+    writedlm(string(folderprefix,"/n_booster_doses.dat"),[cdr[i].rb for i=1:nsims])
     return mydfs
 end
 
